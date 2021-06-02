@@ -62,6 +62,7 @@ Dans cette première partie, vous allez analyser [une connexion WPA Entreprise](
 	  
 	- Phase d’initiation. Arrivez-vous à voir l’identité du client ?
 	  > ![](img/joel-gonin.png)
+	  
 	  > L'identité du client est Joel Gonin.
 	  
 	- Phase hello :
