@@ -114,10 +114,12 @@ Dans cette première partie, vous allez analyser [une connexion WPA Entreprise](
 		  
 		- Nonces
 		  > Random Client Hello: 955bf5b716e24a729c4b60609b8ce482014ac38f1e9cb8cf2bf8fd30bf8995f1
+		  
 		  > Random Server Hello: 003b6c2676ffd79814e56c065e5b0c39cb26600148ca1e9b3e8af83426d46e11
 		
 		- Session ID
 		  > Session ID Client Hello: 9f1bbf1e90b88366a836db08d659f906a637ac31920e06f622762ca6c522a64f
+		  
 		  > Session ID Server Hello: ad41641ec2a7d1d5a9f6586c05703a8cbdbf6ef0053ad517f6e69b286804f5f2
 		  
 	- Phase de transmission de certificats
@@ -130,15 +132,13 @@ Dans cette première partie, vous allez analyser [une connexion WPA Entreprise](
 		  
 		- Change cipher spec
 		 > ![](img/change-cipher-spec.png)
-	  	 > Ce message indique que le tunnel TLS peut maintenant être utilisé.
+	  	 
+		 > Ce message indique que le tunnel TLS peut maintenant être utilisé.
 	  
 	- Authentification interne et transmission de la clé WPA (échange chiffré, vu comme « Application data »)
 	  	 > ![](/img/app-data.png)
 	- 4-way handshake
 	  	 > ![](img/4-way-handshake.png)
-	
-
-( Client hello: 28474 24415 21495)
 
 ### Répondez aux questions suivantes :
  
