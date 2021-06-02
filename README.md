@@ -49,31 +49,110 @@ Dans cette première partie, vous allez analyser [une connexion WPA Entreprise](
 
 - Comparer [la capture](files/auth.pcap) au processus d’authentification donné en théorie (n’oubliez pas les captures d'écran pour illustrer vos comparaisons !). En particulier, identifier les étapes suivantes :
 	- Requête et réponse d’authentification système ouvert
+	  > ![](img/system-ouvert.png)
+	  > L'AP `Cisco_60:bf:50` est l'authentificateur dans cette requête, il fournit entre autre le wifi `HEIG-VD`
+	  > qui fonctionne avec WPA2-Entreprise. Il y a donc d'abord une authentification ouverte. 
+
  	- Requête et réponse d’association (ou reassociation)
+	  > ![](img/reassociation.png)
+	
 	- Négociation de la méthode d’authentification entreprise
+	  > ![](img/nego-auth-meth.png)
+	  > La méthode utilisée est donc `Protected EAP` (EAP-PEAP).
+	  
 	- Phase d’initiation. Arrivez-vous à voir l’identité du client ?
+	  > ![](img/joel-gonin.png)
+	  > L'identité du client est Joel Gonin.
+	  
 	- Phase hello :
+	  > ![](img/client-hello.png)
+	  
+	  > ![](img/server-hello.png)
+	  
 		- Version TLS
+		  > TLS 1.2 supporté par le client, mais l'AP utilise TLS 1.0 (C'est surprenant que 
+		  > l'HEIG utilise toujours TLS 1.0, mais peut-être qu'on a mal réussi à analyser la capture)
+		  
 		- Suites cryptographiques et méthodes de compression proposées par le client et acceptées par l’AP
+		  > Il n'y a aucune méthode de compression proposée par le client
+		  > Voici les Cipher Suite proposées par le client :
+		  > ```
+		  > TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)
+		  > TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (0xc030)
+		  > TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 (0x009f)
+		  > TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 (0xc02b)
+		  > TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (0xc02f)
+		  > TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 (0x009e)
+		  > TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 (0xcca9)
+		  > TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 (0xcca8)
+		  > TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA (0xc00a)
+		  > TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 (0xc024)
+		  > TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (0xc014)
+		  > TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 (0xc028)
+		  > TLS_DHE_RSA_WITH_AES_256_CBC_SHA (0x0039)
+		  > TLS_DHE_RSA_WITH_AES_256_CBC_SHA256 (0x006b)
+		  > TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA (0xc009)
+		  > TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 (0xc023)
+		  > TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA (0xc013)
+		  > TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 (0xc027)
+		  > TLS_DHE_RSA_WITH_AES_128_CBC_SHA (0x0033)
+		  > TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 (0x0067)
+		  > TLS_ECDHE_ECDSA_WITH_RC4_128_SHA (0xc007)
+		  > TLS_ECDHE_RSA_WITH_RC4_128_SHA (0xc011)
+		  > TLS_RSA_WITH_AES_256_GCM_SHA384 (0x009d)
+		  > TLS_RSA_WITH_AES_128_GCM_SHA256 (0x009c)
+		  > TLS_RSA_WITH_AES_256_CBC_SHA (0x0035)
+		  > TLS_RSA_WITH_AES_256_CBC_SHA256 (0x003d)
+		  > TLS_RSA_WITH_AES_128_CBC_SHA (0x002f)
+		  > TLS_RSA_WITH_AES_128_CBC_SHA256 (0x003c)
+		  > TLS_RSA_WITH_RC4_128_SHA (0x0005)
+		  > TLS_RSA_WITH_RC4_128_MD5 (0x0004)
+		  > TLS_RSA_WITH_3DES_EDE_CBC_SHA (0x000a)
+		  > ``` 
+		  > Le serveur a choisi la cipher suite TLS_RSA_WITH_AES_256_CBC_SHA (0x0035)
+		  
 		- Nonces
+		  > Random Client Hello: 955bf5b716e24a729c4b60609b8ce482014ac38f1e9cb8cf2bf8fd30bf8995f1
+		  > Random Server Hello: 003b6c2676ffd79814e56c065e5b0c39cb26600148ca1e9b3e8af83426d46e11
+		
 		- Session ID
+		  > Session ID Client Hello: 9f1bbf1e90b88366a836db08d659f906a637ac31920e06f622762ca6c522a64f
+		  > Session ID Server Hello: ad41641ec2a7d1d5a9f6586c05703a8cbdbf6ef0053ad517f6e69b286804f5f2
+		  
 	- Phase de transmission de certificats
 	 	- Echanges des certificats
+		  > Le serveur a envoyé son certificat dans le Server Hello : 
+		  > ![](img/ap-cert.png)
+		  > La méthode d'authentification est PEAP, ce qui signifie que le client n'envoie pas de certificat
+		  > au serveur. Un client envoie son certificat uniquement lorsque la méthode d'authentification utilisée 
+		  > est EAP-TLS.
+		  
 		- Change cipher spec
+		 > ![](img/change-cipher-spec.png)
+	  	 > Ce message indique que le tunnel TLS peut maintenant être utilisé.
+	  
 	- Authentification interne et transmission de la clé WPA (échange chiffré, vu comme « Application data »)
+	  	 > ![](/img/app-data.png)
 	- 4-way handshake
+	  	 > ![](img/4-way-handshake.png)
+	
+
+( Client hello: 28474 24415 21495)
 
 ### Répondez aux questions suivantes :
  
 > **_Question :_** Quelle ou quelles méthode(s) d’authentification est/sont proposé(s) au client ?
 > 
-> **_Réponse :_** 
+> **_Réponse :_** Le serveur propose d'abord la méthode TLS EAP mais le client répond en demandant plutôt PEAP. 
+> Le serveur renvoie donc une requête pour la méthode PEAP.
+
+> ![](img/auth-meth-by-server.png)
 
 ---
 
 > **_Question:_** Quelle méthode d’authentification est finalement utilisée ?
 > 
-> **_Réponse:_** 
+> **_Réponse:_** PEAP.
 
 ---
 
@@ -81,11 +160,13 @@ Dans cette première partie, vous allez analyser [une connexion WPA Entreprise](
 > 
 > - a. Le serveur envoie-t-il un certificat au client ? Pourquoi oui ou non ?
 > 
-> **_Réponse:_**
+> **_Réponse:_** Le serveur envoie effectivement son certificat au client, cela permet au client de savoir qu'il 
+> communique avec un serveur légitime s'il vérifie sa signature auprès de l'autorité de certification.
 > 
 > - b. Le client envoie-t-il un certificat au serveur ? Pourquoi oui ou non ?
 > 
-> **_Réponse:_**
+> **_Réponse:_** Le client n'envoie pas de certificat dans le cadre d'une authentification avec la méthode PEAP.
+> Son authentification s'effectue dans le tunnel TLS pendant l'authentification interne.
 > 
 
 ---
